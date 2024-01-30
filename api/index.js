@@ -28,6 +28,7 @@ function globalErrorHandler(err,req,res,next){
         res.json({"success":false,
                     "statusCode":err.statusCode,
                     "message":err.message})
+        return
     }
 }
 app.use(globalErrorHandler)
