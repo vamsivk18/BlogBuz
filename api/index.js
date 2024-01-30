@@ -24,7 +24,7 @@ app.use('/api/auth',authRoutes)
 
 function globalErrorHandler(err,req,res,next){
     if(err){
-        console.log(err)
+        // console.log(err)
         res.json({"success":false,
                     "statusCode":err.statusCode,
                     "message":err.message})
