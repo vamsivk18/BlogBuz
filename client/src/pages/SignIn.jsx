@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import {Link,useNavigate} from 'react-router-dom'
 import { useDispatch,useSelector } from 'react-redux'
 import { signInStart, signInSuccess, signInFailure } from '../redux/user/userSlice'
-
+import OAuth from '../components/OAuth'
 
 function SignIn() {
   const [formData,setFormData] = useState({})
@@ -26,14 +26,13 @@ function SignIn() {
       if(data.success === false){
         dispach(signInFailure(data.message))
       }else if(res.ok){
-        dispach(signInSuccess(data))
+        dispach(signInSuccess(data.userInfo))
         navigate('/')
       }
     }catch(error){
       dispach(signInFailure(error.message))
     }
   }
-  console.log(formData)
   return (
     <div className='min-h-screen mt-20'>
       <div className='p-3 max-w-4xl mx-auto flex flex-col md:flex-row md:items-center gap-5'>
@@ -67,6 +66,7 @@ function SignIn() {
                 ):'Sign In'
               }
             </Button>
+            <OAuth></OAuth>
           </form>
           <div>
             <p className='mt-3'>Don't have an account? <span className='ml-2 text-blue-500'><Link to={'/sign-up'}>Sign Up</Link></span></p>

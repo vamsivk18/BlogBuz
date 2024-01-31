@@ -15,6 +15,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         require: true,
     },
+    photoURL:{
+        type: String,
+        default:'/profile_photo.webp'
+    }
 },{timestamps:true})
 
 const User = mongoose.model('User', userSchema)
