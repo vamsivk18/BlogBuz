@@ -7,7 +7,7 @@ function FooterComp(){
   return (
     <Footer className='border p-5 border-t-4 border-blue-500 flex flex-col'>
             <div className='flex w-full max-w-[1400px] gap-4 flex-col sm:flex-row border-b-2 pb-4 justify-between'>
-                <Link to="/" className='whitespace-nowrap text-xl font-semibold dark:text-white'>
+                <Link to="/" className='whitespace-nowrap text-xl font-semibold'>
                     <span className='px-2 py-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg text-white'>Blog</span>
                     Buzz
                 </Link>

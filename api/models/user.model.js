@@ -1,5 +1,7 @@
 import mongoose from 'mongoose'
+import dotenv from 'dotenv'
 
+dotenv.config()
 const userSchema = new mongoose.Schema({
     username:{
         type: String,
@@ -17,7 +19,7 @@ const userSchema = new mongoose.Schema({
     },
     photoURL:{
         type: String,
-        default:'/profile_photo.webp'
+        default:process.env.BASE_URL+'/profile_photo.webp'
     }
 },{timestamps:true})
 

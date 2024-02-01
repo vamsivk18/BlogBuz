@@ -6,6 +6,7 @@ import About from './pages/About'
 import SignUp from './pages/SignUp'
 import Dashboard from './pages/Dashboard'
 import Projects from './pages/Projects'
+import PrivateRoute from './components/PrivateRoute'
 
 import Header from './components/Header'
 import FooterComp from './components/Footer'
@@ -19,9 +20,10 @@ function App() {
         <Route path='/about' element={<About/>}></Route>
         <Route path='/sign-in' element={<SignIn/>}></Route>
         <Route path='/sign-up' element={<SignUp/>}></Route>
-        <Route path='/dashboard' element={<Dashboard/>}></Route>
+        <Route element={<PrivateRoute></PrivateRoute>}>
+          <Route path='/dashboard' element={<Dashboard/>}></Route>
+        </Route>
         <Route path='/projects' element={<Projects/>}></Route>
-
       </Routes>
       <FooterComp></FooterComp>
     </BrowserRouter>
