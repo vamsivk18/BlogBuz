@@ -6,9 +6,12 @@ import { app } from '../firebase'
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { updateUserStart,updateUserFailure,updateUserSuccess,updateUserNothing,initRefresh, signOut } from '../redux/user/userSlice'
+import {useNavigate} from 'react-router-dom'
+
 
 function DashProfile() {
     let dispatch = useDispatch()
+    let navigate = useNavigate()
     const {currentUser,loading,error:errorMessage,success:successMessage} = useSelector(state=>state.user)
     const [imageFileUrl,setImageFileUrl] = useState(null)
     const [imageFile,setImageFile] = useState(null)
@@ -127,7 +130,7 @@ function DashProfile() {
         <div className='pt-8 p-2 flex flex-col gap-4 md:w-[500px] mx-auto'>
             <h3 className='text-center text-3xl font-semibold'>Profile</h3>
             
-            <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
+            <form id='profile' className='flex flex-col gap-4' onSubmit={handleSubmit}>
                 <input type="file" accept='image/*' onChange={handleImageChange} ref={filePickerRef} hidden/>
                 <div className='relative shadow-md self-center flex items-center justify-center h-32 w-32 bg-gray-300 rounded-full' onClick={()=>filePickerRef.current.click()}>
                     {imageUploadProgress && (
@@ -168,6 +171,9 @@ function DashProfile() {
                         </>
                     ):'Update'
                 }</Button>
+                {
+                    currentUser.isAdmin && <Button type='button' gradientDuoTone='purpleToPink' onClick={()=>{navigate('/create-post')}}>Create a Post</Button>
+                }
             </form>
             <div className='flex justify-between text-red-500'>
                 <span className='cursor-pointer' onClick={deleteUser}>Delete Account</span>

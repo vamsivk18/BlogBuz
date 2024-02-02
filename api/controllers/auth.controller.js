@@ -23,7 +23,7 @@ export const signin = async (req,res,next) => {
         else if(!(user.password===req.body.password)) next(errorHandler(400,'Invalid password'))
         else {
             const token = jwt.sign(
-                {id:user._id}, process.env.JWT_SECRET, { expiresIn: '1d'}
+                {id:user._id,isAdmin:user.isAdmin}, process.env.JWT_SECRET, { expiresIn: '1d'}
             )
             const {password,...userInfo} = user._doc
             res.status(200).cookie('access_token',token,{httpOnly: true}).json({"success":true,"statusCode":200,"message":"User SignIn Success",userInfo})
@@ -39,7 +39,7 @@ export const OAuth = async (req,res,next) => {
         const user = await User.findOne({'email':email})
         if(user){
             const token = jwt.sign(
-                {id:user._id}, process.env.JWT_SECRET, { expiresIn: '1d'}
+                {id:user._id,isAdmin:user.isAdmin}, process.env.JWT_SECRET, { expiresIn: '1d'}
             )
             const {password,...userInfo} = user._doc
             res.status(200).cookie('access_token',token,{httpOnly: true}).json({"success":true,"statusCode":200,"message":"User SignIn Success",userInfo})
@@ -53,7 +53,8 @@ export const OAuth = async (req,res,next) => {
             })
             const user = await User.create(newUser)
             const token = jwt.sign(
-                {id:user._id}, process.env.JWT_SECRET, { expiresIn: '1d'}
+                {id:user._id,isAdmin:user.isAdmin
+                }, process.env.JWT_SECRET, { expiresIn: '1d'}
             )
             const {password:userPassword,...userInfo} = user._doc
             res.status(200).cookie('access_token',token,{httpOnly: true}).json({"success":true,"statusCode":200,"message":"User SignUp Success",userInfo})

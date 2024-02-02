@@ -20,6 +20,10 @@ const userSchema = new mongoose.Schema({
     photoURL:{
         type: String,
         default:process.env.BASE_URL+'/profile_photo.webp'
+    },
+    isAdmin:{
+        type: Boolean,
+        default:false
     }
 },{timestamps:true})
 
