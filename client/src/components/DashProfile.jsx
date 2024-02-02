@@ -1,28 +1,38 @@
 import React, { useState,useRef, useEffect } from 'react'
-import { Alert, Button, TextInput } from 'flowbite-react'
-import { useSelector } from 'react-redux'
+import { Alert, Button, Spinner, TextInput } from 'flowbite-react'
+import { useSelector,useDispatch } from 'react-redux'
 import {getDownloadURL, getStorage, uploadBytesResumable, ref} from 'firebase/storage'
 import { app } from '../firebase'
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
+import { updateUserStart,updateUserFailure,updateUserSuccess,updateUserNothing,initRefresh, signOut } from '../redux/user/userSlice'
 
 function DashProfile() {
-    const {currentUser} = useSelector(state=>state.user)
+    let dispatch = useDispatch()
+    const {currentUser,loading,error:errorMessage,success:successMessage} = useSelector(state=>state.user)
     const [imageFileUrl,setImageFileUrl] = useState(null)
     const [imageFile,setImageFile] = useState(null)
     const [imageUploadProgress,setImageUploadProgress] = useState(null)
+    const [imageFileUploading,setImageFileUploading] = useState(null)
     const [imageUploadError,setImageUploadError] = useState(null)
     const filePickerRef = useRef()
-    const [formData,setFormData] = useState({'username':currentUser.username,'password':''})
+    const [formData,setFormData] = useState({'username':currentUser.username,'password':undefined})
     console.log(imageUploadProgress,imageUploadError)
+    console.log(formData)
     useEffect(()=>{
         if(imageFile){
             uploadImage()
         }
     },[imageFile])
+    useEffect(()=>{
+        console.log('rendering')
+        console.log('Calling Refresh')
+        dispatch(initRefresh())
+    },[formData])
     
     function uploadImage(){
-        console.log('Uploading Image...')
+        setImageFileUploading(true)
+        console.log('Uploading Image...',imageFile.name)
         const storage = getStorage(app)
         const fileName = new Date().getTime()+imageFile.name;
         const storageRef = ref(storage,fileName)
@@ -37,10 +47,12 @@ function DashProfile() {
                 setImageUploadProgress(null)
                 setImageFileUrl(null)
                 setImageFile(null)
+                setImageFileUploading(false)
             },
             ()=>{
                 getDownloadURL(uploadTask.snapshot.ref).then((downloadURL)=>{
                     setImageFileUrl(downloadURL)
+                    setImageFileUploading(false)
                 })
             }
         )
@@ -51,16 +63,62 @@ function DashProfile() {
         setImageUploadError(null)
         setFormData({... formData,[e.target.id]:e.target.value})
     }
-    function handleFormData(e){
+    async function handleSubmit(e){
+        dispatch(updateUserStart())
         e.preventDefault()
-        console.log(formData)
+        try{
+            const finalData = {...formData,photoURL:imageFileUrl}
+            if((!finalData.username || finalData.username===currentUser.username) &&
+            (!finalData.password) &&
+            (!finalData.photoURL || finalData.photoURL===currentUser.photoURL)
+            ){
+                dispatch(updateUserNothing())
+                return
+            }
+            console.log(finalData,'Final Data')
+            const res =await fetch(`/api/user/update/${currentUser._id}`,{
+              method:'PUT',
+              headers:{'Content-Type':'application/json'},
+              body:JSON.stringify(finalData)
+            })
+            const data = await res.json()
+            if(data.success === false){
+              dispatch(updateUserFailure(data.message))
+            }else if(res.ok){
+              console.log('Success')
+              dispatch(updateUserSuccess(data))
+              setImageUploadProgress(null)
+              setImageFileUrl(null)
+              setImageFile(null)
+            }
+          }catch(error){
+            console.log(error)
+          }
     }
     function handleImageChange(e){
+        dispatch(initRefresh())
         setImageUploadError(null)
         const file = e.target.files[0]
         setImageFile(file)
         if(file){
             setImageFileUrl(URL.createObjectURL(file))
+        }
+    }
+    async function deleteUser(){
+        try{
+            const res =await fetch(`/api/user/delete/${currentUser._id}`,{
+              method:'DELETE',
+              headers:{'Content-Type':'application/json'}
+            })
+            const data = await res.json()
+            if(data.success === false){
+              dispatch(updateUserFailure(data.message))
+            }else if(res.ok){
+              console.log('Success')
+              dispatch(signOut())
+            }
+        }catch(error){
+
         }
     }
   
@@ -69,7 +127,7 @@ function DashProfile() {
         <div className='pt-8 p-2 flex flex-col gap-4 md:w-[500px] mx-auto'>
             <h3 className='text-center text-3xl font-semibold'>Profile</h3>
             
-            <form className='flex flex-col gap-4' onSubmit={handleFormData}>
+            <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
                 <input type="file" accept='image/*' onChange={handleImageChange} ref={filePickerRef} hidden/>
                 <div className='relative shadow-md self-center flex items-center justify-center h-32 w-32 bg-gray-300 rounded-full' onClick={()=>filePickerRef.current.click()}>
                     {imageUploadProgress && (
@@ -102,12 +160,20 @@ function DashProfile() {
                 <TextInput type='text' defaultValue={currentUser.username} id='username' onChange={handleChange}></TextInput>
                 <TextInput disabled defaultValue={currentUser.email}></TextInput>
                 <TextInput placeholder='password' type='text' id='password' onChange={handleChange}></TextInput>
-                <Button gradientDuoTone='purpleToBlue' outline type='submit'>Update</Button>
+                <Button gradientDuoTone='purpleToBlue' outline type='submit' disabled={imageFileUploading}>{
+                    loading?(
+                        <>
+                        <Spinner size='sm'/>
+                        <span className='pl-3'>Loading...</span>
+                        </>
+                    ):'Update'
+                }</Button>
             </form>
             <div className='flex justify-between text-red-500'>
-                <span className='cursor-pointer'>Delete Account</span>
+                <span className='cursor-pointer' onClick={deleteUser}>Delete Account</span>
                 {/* <span className='cursor-pointer'>Sign Out</span> */}
             </div>
+            {(errorMessage || successMessage)  && <Alert color={`${errorMessage?'failure':'success'}`}>{errorMessage || successMessage}</Alert>}
         </div>
     </div>
 
