@@ -9,8 +9,8 @@ export default function zodValidate(type){
         }
         if(type==='createPost'){
             let zod_schema = zod.object({
-                title:zod.string().min(10),
-                content: zod.string().min(10)
+                title:zod.string().min(1),
+                content: zod.string().min(1)
             })
             let zodded_data = zod_schema.safeParse({title:req.body.title,content:req.body.content})
             if(zodded_data.success){

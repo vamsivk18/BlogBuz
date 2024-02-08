@@ -45,22 +45,48 @@ const userSlice = createSlice({
             state.loading = false
             state.error = null
             state.success = action.payload.message
-            console.log(state.success)
         },
         updateUserNothing:(state)=>{
             state.success = 'Nothing to Update'
             state.loading=false
             state.error = null
-
         },
         updateUserFailure:(state,action)=>{
             state.error = action.payload
             state.loading = false
             state.success = null
+        },
+        createPostStart:(state)=>{
+            state.loading = true
+            state.error = null
+            state.success = null
+        },
+        createPostSuccess:(state,action)=>{
+            state.loading = false
+            state.error = null
+            state.success = action.payload
+        },
+        createPostFailure:(state,action)=>{
+            state.loading = false
+            state.error = action.payload
+            state.success = null
         }
     }
 })
 
-export const { signInStart,signInSuccess,signInFailure,signOut,updateUserStart,updateUserSuccess,updateUserFailure,updateUserNothing,initRefresh} = userSlice.actions
+export const { 
+    initRefresh,
+    signInStart,
+    signInSuccess,
+    signInFailure,
+    signOut,
+    updateUserStart,
+    updateUserSuccess,
+    updateUserFailure,
+    updateUserNothing,
+    createPostStart,
+    createPostSuccess,
+    createPostFailure
+    } = userSlice.actions
 
 export default userSlice.reducer

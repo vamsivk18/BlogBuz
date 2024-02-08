@@ -5,6 +5,6 @@ import { createPost } from '../controllers/admin.controller.js'
 
 const router = express.Router()
 
-router.put('/create-post',verifyToken,zodValidate('createPost'),createPost)
+router.post('/create-post',verifyToken,zodValidate('createPost'),createPost)
 
 export default router

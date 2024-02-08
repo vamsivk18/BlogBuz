@@ -7,7 +7,7 @@ export const createPost = async function(req,res,next){
     const newPost =new Post({...req.body,slug,userId:req.user.id})
     try{
         const post = await Post.create(newPost)
-        res.status(201).json({newPost})
+        res.status(201).json({success:true,message:"Post Created Successfully",slug})
     }catch(error){
         return next(errorHandler(401,error.message))
     }
